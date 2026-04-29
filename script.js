@@ -6,7 +6,6 @@ const BALLZ = [];
 let LEFT, UP, RIGHT, DOWN;
 let friction = 0.1;
 
-//a class Vector with basic vector operations
 class Vector{
     constructor(x, y){
         this.x = x;
@@ -29,13 +28,32 @@ class Vector{
         return new Vector(this.x*n, this.y*n);
     }
 
+    //returns a perpendicular normal vector
+    normal(){
+        return new Vector(-this.y, this.x).unit();
+    }
+
+    //returns a vector with same direction and 1 length
+    unit(){
+        if(this.mag() === 0){
+            return new Vector(0,0);
+        } else {
+            return new Vector(this.x/this.mag(), this.y/this.mag());
+        }
+    }
+
     drawVec(start_x, start_y, n, color){
         ctx.beginPath();
         ctx.moveTo(start_x, start_y);
         ctx.lineTo(start_x + this.x * n, start_y + this.y * n);
         ctx.strokeStyle = color;
         ctx.stroke();
-        ctx.closePath();
+        ctx.closePath()
+    }
+    
+    //returns the length of a vectors projection onto the other one
+    static dot(v1, v2){
+        return v1.x*v2.x + v1.y*v2.y;
     }
 }
 
@@ -62,8 +80,13 @@ class Ball{
     }
 
     display(){
-        this.vel.drawVec(this.x, this.y, 10, "green");
-        this.acc.drawVec(this.x, this.y, 100, "blue");
+        this.vel.drawVec(550, 400, 10, "green");
+        this.acc.unit().drawVec(550, 400, 50, "blue");
+        ctx.beginPath();
+        ctx.arc(550, 400, 50, 0, 2*Math.PI);
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+        ctx.closePath();
     }
 }
 
@@ -117,7 +140,7 @@ function keyControl(b){
         b.acc.y = 0;
     }
     
-    //acceleration vector gets added to the velocity vector
+    b.acc = b.acc.unit().mult(b.acceleration);
     b.vel = b.vel.add(b.acc);
     b.vel = b.vel.mult(1-friction);
     b.x += b.vel.x;
